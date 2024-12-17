@@ -14,6 +14,6 @@ Perl module Parallel::ForkManager v2.03
 ## Getting Started
 ## 1. download the scripts and test data
 ```
-git clone https://github.com/zwycooky/PollenSeq.git
+git clone https://github.com/zwycooky/hapBSA.git
 
 ```
