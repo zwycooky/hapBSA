@@ -1,2 +1,4 @@
 # hapBSA
-Haplotype-based Bulk-segregant analysis
+Haplotype-based Bulked segregant analysis
+
+Getting Started
