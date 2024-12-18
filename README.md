@@ -16,6 +16,7 @@ Perl module Parallel::ForkManager v2.03
 # set the working directory to 'hapBSA_Dir'
 mkdir -p hapBSA_Dir/{00parent_bam,01pool_bam,02parent_SNP,parent_tmpdir}
 export HAPBSA_DIR=`realpath hapBSA_Dir`
+
 # download test data
 wget https://figshare.com/ndownloader/files/51266927 -O ->> test_data.tar.gz
 tar zxf test_data.tar.gz
