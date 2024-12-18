@@ -32,6 +32,9 @@ If your network connection is unstable, some errors may occur. Please retry the 
 
 ## 3. Mapping short reads to reference genome
 ```
+## rename the seq id of  test.genome.fa. 
+sed -i 's/lg1:1-30000000/chr1/' ${HAPBSA_DIR}/test_genome/test.genome.fa
+
 ## build index for reference genome
 docker run --user $(id -u):$(id -g) -v ${HAPBSA_DIR}/test_genome/:/input hapbsa-container bwa index /input/test.genome.fa
 docker run --user $(id -u):$(id -g) -v ${HAPBSA_DIR}/test_genome/:/input hapbsa-container samtools faidx /input/test.genome.fa
