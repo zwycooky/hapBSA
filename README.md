@@ -24,6 +24,7 @@ tar zxf test_data.tar.gz
 # you can find a Dockerfile in https://github.com/zwycooky/hapBSA, and use it to build a docker container
 docker build -t hapbsa-container .
 ```
+Three directories, maternal_fq, pool_fq and test_genome, will be generated after this step, and containing fastq files of meternal accession, fastq files of the two sample pools and a fasta file of test genome, respectively.
 
 ## 3. Mapping parent reads to reference genome
 ```
