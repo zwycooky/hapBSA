@@ -14,7 +14,7 @@ Perl module Parallel::ForkManager v2.03
 ## 1. download the scripts and test data
 ```
 # set the working directory to 'hapBSA_Dir'
-mkdir -p hapBSA_Dir/{00parent_bam,01pool_bam,02parent_SNP}
+mkdir -p hapBSA_Dir/{00parent_bam,01pool_bam,02parent_SNP,parent_tmpdir}
 export HAPBSA_DIR=`realpath hapBSA_Dir`
 # download test data
 wget https://figshare.com/ndownloader/files/51266927 -O ->> test_data.tar.gz
@@ -28,6 +28,7 @@ Three directories, 'maternal_fq', 'pool_fq' and 'test_genome', will be generated
 # you can find a Dockerfile in https://github.com/zwycooky/hapBSA, and use it to build a docker container
 docker build -t hapbsa-container .
 ```
+If your network connection is unstable, some errors may occur. Please retry the command 'docker build -t hapbsa-container .' until the Docker container is successfully built.
 
 ## 3. Mapping short reads to reference genome
 ```
@@ -64,5 +65,51 @@ docker run --user $(id -u):$(id -g) \
 
 ## 4. phasing parent SNPs by whatshap
 ```
+## SNP calling of parent using GATK
+docker run --user $(id -u):$(id -g) \
+	-v ${HAPBSA_DIR}/00parent_bam:/input/ \
+	-v ${HAPBSA_DIR}/parent_tmpdir:/tmpdir/ \
+	-v ${HAPBSA_DIR}/02parent_SNP:/output/ \
+	-v ${HAPBSA_DIR}/test_genome/:/genome/ \
+	hapbsa-container SNP_caller.pl /input/ /tmpdir/ /output/ /genome/test.genome.fa 10
+  
+## merge SNP calling results
+docker run --user $(id -u):$(id -g) -v ${HAPBSA_DIR}/parent_tmpdir:/tmpdir/ \
+	-v ${HAPBSA_DIR}/02parent_SNP:/output/ \
+	hapbsa-container merge_split_vcf.pl /tmpdir/PASS.vcf.list /output/Parent_merged.vcf
 
+## phasing SNPs using whatshap
+docker run --user $(id -u):$(id -g) \
+	-v ${HAPBSA_DIR}/02parent_SNP:/input/ \
+	-v ${HAPBSA_DIR}/test_genome:/genome/ \
+	-v ${HAPBSA_DIR}/00parent_bam:/bam/ \
+	hapbsa-container whatshap phase --ignore-read-groups \
+	-o /input/parent.whatshap.ngs.phased.vcf \
+	--reference=/genome/test.genome.fa \
+	/input/Parent_merged.vcf \
+	/bam/parent.sorted.marked.duplicates.bam
+
+## format phased SNPs from whatshap 
+docker run --user $(id -u):$(id -g) \
+	-v ${HAPBSA_DIR}/02parent_SNP:/input/ \
+	hapbsa-container get_phased_SNP_from_whatshap.pl \
+	/input/parent.whatshap.ngs.phased.vcf \
+	/input/parent.whatshap.ngs.phased.txt
 ```
+
+## 5. run hapBSA
+```
+docker run --user $(id -u):$(id -g) \
+	-v ${HAPBSA_DIR}/01pool_bam:/pool_bam/ \
+	-v ${HAPBSA_DIR}/02parent_SNP:/snp/ \
+	-v ${HAPBSA_DIR}/test_genome:/genome/ \
+	-v ${HAPBSA_DIR}:/output/ \
+	hapbsa-container hapBSA_V4.pl \
+	-1 /pool_bam/A.sorted.bam \
+	-2 /pool_bam/B.sorted.bam \
+	-p /snp/parent.whatshap.ngs.phased.txt \
+	-e separating_reads_by_haplotype.binarySearch.hapBSA.block.pl \
+	-m snpMapper_sub.pl \
+	-o /output/test.hapBSA	
+```
+
