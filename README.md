@@ -14,17 +14,21 @@ Perl module Parallel::ForkManager v2.03
 ## Step by step tutorial
 ## 1. download the scripts and test data
 ```
+# set the working directory to 'hapBSA_Dir'
+mkdir -p hapBSA_Dir/{00parent_bam,01pool1_bam,02pool2_bam,03parent_SNP}
+export $HAPBSA_DIR=`realpath hapBSA_Dir`
 # download test data
 wget https://figshare.com/ndownloader/files/51266927 -O ->> test_data.tar.gz
 tar zxf test_data.tar.gz
+mv maternal_fq pool_fq test_genome $HAPBSA_DIR
 ```
+Three directories, 'maternal_fq', 'pool_fq' and 'test_genome', will be generated after this step, and containing fastq files of meternal accession, fastq files of the two sample pools and a fasta file of test genome, respectively.
 
 ## 2. build docker image
 ```
 # you can find a Dockerfile in https://github.com/zwycooky/hapBSA, and use it to build a docker container
 docker build -t hapbsa-container .
 ```
-Three directories, maternal_fq, pool_fq and test_genome, will be generated after this step, and containing fastq files of meternal accession, fastq files of the two sample pools and a fasta file of test genome, respectively.
 
 ## 3. Mapping parent reads to reference genome
 ```
