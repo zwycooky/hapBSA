@@ -107,7 +107,7 @@ sub lsf {
 
 cd $tmp_output/$id
 
-MALLOC_ARENA_MAX=2 gatk HaplotypeCaller -R $genome $bam_com --verbosity ERROR -L $id:$s-$e -O $id.$postfix.raw.vcf
+MALLOC_ARENA_MAX=2 $gatk HaplotypeCaller -R $genome $bam_com --verbosity ERROR -L $id:$s-$e -O $id.$postfix.raw.vcf
 MALLOC_ARENA_MAX=2 $gatk SelectVariants -select-type SNP -V $id.$postfix.raw.vcf --verbosity ERROR -O $id.$postfix.snp.vcf
 MALLOC_ARENA_MAX=2 $gatk VariantFiltration -V $id.$postfix.snp.vcf --verbosity ERROR --filter-expression "QD < 2.0 || MQ < 40.0 || FS > 60.0 || SOR > 3.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" --filter-name "Filter" -O $id.$postfix.snp.filtered.vcf
 $get_PASS $id.$postfix.snp.filtered.vcf $id.$postfix.snp.filtered.PASS.vcf
@@ -120,7 +120,7 @@ LSF
 
 cd $tmp_output/$id
 
-MALLOC_ARENA_MAX=2 gatk HaplotypeCaller -R $genome $bam_com --verbosity ERROR -L $id -O $id.raw.vcf
+MALLOC_ARENA_MAX=2 $gatk HaplotypeCaller -R $genome $bam_com --verbosity ERROR -L $id -O $id.raw.vcf
 MALLOC_ARENA_MAX=2 $gatk SelectVariants -select-type SNP -V $id.raw.vcf --verbosity ERROR -O $id.snp.vcf
 MALLOC_ARENA_MAX=2 $gatk VariantFiltration -V $id.snp.vcf --verbosity ERROR --filter-expression "QD < 2.0 || MQ < 40.0 || FS > 60.0 || SOR > 3.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" --filter-name "Filter" -O $id.snp.filtered.vcf
 $get_PASS $id.snp.filtered.vcf $id.snp.filtered.PASS.vcf
