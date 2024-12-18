@@ -21,6 +21,12 @@ tar zxf test_data.tar.gz
 
 ## 2. build docker image
 ```
-# you can find a Dockerfile in 
+# you can find a Dockerfile in https://github.com/zwycooky/hapBSA, and use it to build a docker container
 docker build -t hapbsa-container .
 ```
+
+## 3. Mapping parent reads to reference genome
+```
+
+```
+
