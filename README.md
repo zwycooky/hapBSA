@@ -10,6 +10,38 @@ Hisat2 v2.2.1 or higher
 Whatshap v1.7 or higher  
 Perl module Parallel::ForkManager v2.03  
 
+## Quick start
+```
+Usage:
+  scripts/hapBSA_V4.pl -OPTIONS VALUES
+
+options:
+--input options
+	-1 FILE         bam file of pool1
+	-2 FILE         bam file of pool2
+	-p FILE         hap file
+	-r REFGENOME    reference genome for mapping
+
+--sub progrem
+	-e SCRIPT       path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
+	-m SCRIPT       path of snpMapper_sub.pl
+	
+--output options         
+	-o PREFIX       prefix of output file
+
+--criteria options
+	-w INT          window length (bp) [default: 1000000]
+	-s INT          window step (bp)   [default: 600000]
+	-d INT          minimum depth for calculating SNP-index [default: 10]
+	-D INT		minimum phased read numbers of a window [default: 50]
+	-N INT		minimum read numbers of hap block [default: 10]
+	-n INT		minimum phased numbers of phased snps for reads [default: 3]
+
+--perfromanat options
+	-a INT          cpus cores used for the analysis [default: 10]
+```
+
+
 ## Step by step tutorial
 ## 1. download the scripts and test data
 ```
@@ -18,8 +50,8 @@ mkdir -p hapBSA_Dir/{00parent_bam,01pool_bam,02parent_SNP,parent_tmpdir}
 export HAPBSA_DIR=`realpath hapBSA_Dir`
 
 # download test data
-wget https://figshare.com/ndownloader/files/51266927 -O ->> test_data.tar.gz
-tar zxf test_data.tar.gz
+wget https://figshare.com/ndownloader/files/51266927 -O ->> hapBSA_test_data.gz
+tar zxf hapBSA_test_data.gz
 mv maternal_fq pool_fq test_genome $HAPBSA_DIR
 ```
 Three directories, 'maternal_fq', 'pool_fq' and 'test_genome', will be generated after this step, and containing fastq files of meternal accession, fastq files of the two sample pools and a fasta file of test genome, respectively.
