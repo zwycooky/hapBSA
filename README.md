@@ -14,9 +14,13 @@ Perl module Parallel::ForkManager v2.03
 ## Step by step tutorial
 ## 1. download the scripts and test data
 ```
-# download scripts of hapBSA
-git clone https://github.com/zwycooky/hapBSA.git
 # download test data
 wget https://figshare.com/ndownloader/files/51266927 -O ->> test_data.tar.gz
 tar zxf test_data.tar.gz
+```
+
+## 2. build docker image
+```
+# you can find a Dockerfile in 
+docker build -t hapbsa-container .
 ```
