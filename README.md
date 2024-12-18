@@ -11,9 +11,11 @@ Whatshap v1.7 or higher
 Perl v5.30.0 or higher  
 Perl module Parallel::ForkManager v2.03  
 
-## Getting Started
+## Step by step tutorial
 ## 1. download the scripts and test data
 ```
+# download scripts of hapBSA
 git clone https://github.com/zwycooky/hapBSA.git
-
+# download test data
+wget https://figshare.com/ndownloader/files/44669011 -O ->> test_data.tar.gz
 ```
