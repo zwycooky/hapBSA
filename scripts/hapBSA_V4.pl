@@ -15,7 +15,7 @@ options:
 	-1 FILE			bam file of pool1
 	-2 FILE			bam file of pool2
 	-p FILE			hap file
-	-r REFGENOME			reference genome for mapping
+	-r REFGENOME		reference genome for mapping
 
 --sub progrem
 	-e SCRIPT		path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
