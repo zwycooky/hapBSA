@@ -15,7 +15,7 @@ options:
 	-1 FILE			bam file of pool1
 	-2 FILE			bam file of pool2
 	-p FILE			hap file
-	-r REFGENOME	reference genome for mapping
+	-r REFGENOME			reference genome for mapping
 
 --sub progrem
 	-e SCRIPT		path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
@@ -33,7 +33,7 @@ options:
 	-n INT			minimum numbers of phased snps for a read [default: 3]
 
 --perfromanat options
-	-a INT          cpus cores used for the analysis [default: 10]     
+	-a INT			cpus cores used for the analysis [default: 10]     
 \n";
 
 die $Usage unless ($opt_1 && $opt_2 && $opt_p && $opt_r && $opt_o && $opt_e && $opt_m);
