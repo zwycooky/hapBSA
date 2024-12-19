@@ -1,6 +1,8 @@
 ﻿#!/usr/bin/perl
 
+use List::Util qw(sum);
 use strict;
+
 my ($refgenome,$bam1,$bam2,$depth) = @ARGV[0,1,2,3];
 my $Usage = "\n\t$0 <ref genome> <bam1> <bam2> <Depth>
 \n";
@@ -12,8 +14,7 @@ my ($snp_count,$index_sum,$ED4_sum,$index05_sum,$index01_sum,$ED405_sum,$ED401_s
 while (<$fh_pileup>) {
 	chomp;
 	
-	next if /^\[/;
-       	next if /^</;
+	next if /^\[|^</;
 
 	my @Contents = (split /\s+/,$_);
 
@@ -83,35 +84,13 @@ while (<$fh_pileup>) {
 	## random threshold ##
 	my (@thre_index,@thre_ED4);
 	foreach (1..1000) {
-		my ($mthre,$wthre);
-		for (1..25) {
-			my $rand = rand();
-			if ($rand >= 0.5) {
-				$mthre ++;
-			}
-		}
-		for (1..25) {
-                        my $rand = rand();
-                        if ($rand >= 0.5) {
-                                $wthre ++;
-                        }
-                }
-		$mthre = $mthre / 25;
-		$wthre = $wthre / 25;
-
-		my ($mut_rand,$wt_rand);
-		foreach (1..$mutcov1) {
-			my $rand = rand();
-			if ($rand >= $mthre) {
-				$mut_rand ++;
-			}
-		}
-		foreach (1..$wtcov1) {
-                        my $rand = rand();
-                        if ($rand >= $wthre) {
-                                $wt_rand ++;
-                        }
-                }
+		
+		my ($mut_rand, $wt_rand) = (0, 0);
+		my $mthre = sum(map { rand() >= 0.5 } (1..25)) / 25;
+		my $wthre = sum(map { rand() >= 0.5 } (1..25)) / 25;
+		$mut_rand += sum(map { rand() >= $mthre } (1..$mutcov1));
+		$wt_rand += sum(map { rand() >= $wthre } (1..$wtcov1));
+		
 		my $rm1 = $mut_rand / $mutcov1;
 		my $rm2 = 1 - $rm1;
 		my $rw1 = $wt_rand / $wtcov1;
@@ -121,9 +100,12 @@ while (<$fh_pileup>) {
 		push @thre_index,$rand_SNPindex;
 		push @thre_ED4,$rand_ED4;
 	}
+
 	@thre_index = sort {$b <=> $a} @thre_index;
 	@thre_ED4 = sort {$b <=> $a} @thre_ED4;
-	foreach (0..99) {
+	
+	my @sig_tmp0501 = (9,49);
+	foreach (@sig_tmp0501) {
 		$SNPindex_thre{$_} += $thre_index[$_];
 		$ED4_thre{$_} += $thre_ED4[$_];
 	}
@@ -179,10 +161,3 @@ sub base_counter {
 	return ( $baseA, $baseC, $baseG, $baseT ,$baseE);
 }
 
-sub sum{
-	my $sum = 0;
-	for (@_){
-		$sum += $_; 
-	}
-	return $sum;
-}
