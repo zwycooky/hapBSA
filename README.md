@@ -47,7 +47,8 @@ options:
 perl scripts/hapBSA_V4.pl \
 	-1 pool1.bam \
 	-2 pool2.bam \
-	-p haplotype.txt -r reference.fa \
+	-p haplotype.txt \
+	-r reference.fa \
 	-e scripts/separating_reads_by_haplotype.binarySearch.hapBSA.block.pl \
 	-m scripts/snpMapper_sub.pl \
 	-o output_prefix
