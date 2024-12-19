@@ -8,21 +8,23 @@ my $Usage = "\n\t$0 <bam> <phased hap file> <output prefix> <snp numbers for rea
 \n";
 die $Usage unless (@ARGV == 4);
 
+#my $time1 = time();
 ## read hap data ##
 my ($hap,$block);
 open HAP,'<',"$phasing_data" or die "Error: Cannot open hap file:$!";
 while (<HAP>) {
 	chomp;
-	my ($contig,$pos,$snp1,$snp2) = (split)[0,1,2,3];
-	$block = (split)[4];
-	#$contig = $contig . '_FDA';
-	push @{$hap->{$contig}},"$pos\t$snp1\t$snp2\t$block";
+	my ($contig,$pos,$snp1,$snp2,$block_id) = (split)[0,1,2,3,4];
+	$block = $block_id;
+	#push @{$hap->{$contig}},"$pos\t$snp1\t$snp2\t$block";
+	push @{$hap->{$contig}}, { pos => $pos, snp1 => $snp1, snp2 => $snp2, block => $block_id };
 }
 close HAP;
 
 ## start phasing pacbio/NGS reads ##
 my ($pre_reads_id,@tmp,$fir);
 open my $sam_file,"samtools view -q 45 $sam|" or die "Error: Cannot open sam/bam file:$!";
+
 #open NOPHASING,'>',"$outprefix.nophase.txt";
 open PHASE1,'>',"$outprefix.hap1.txt";
 open PHASE2,'>',"$outprefix.hap2.txt";
@@ -31,7 +33,6 @@ open PHASE2,'>',"$outprefix.hap2.txt";
 while (<$sam_file>) {
 	chomp;
 
-	## next if not primary mapping ##
 	my ($reads_id,$mapQ) = (split /\t/,$_)[0,1];
 
 	if ($fir == 0) {
@@ -42,13 +43,9 @@ while (<$sam_file>) {
 		my $sam_line = $tmp[0];
 		my $phasing_res = &phasing_reads(@tmp);
 		my $ifphased = (split /\t/,$phasing_res)[0];	
-		my ($reads_seq,$reads_q) = (split /\t/,$tmp[0])[9,10];
+		#my ($reads_seq,$reads_q) = (split /\t/,$tmp[0])[9,10];
 		
-
-		if ($ifphased == 0) {
-		#	my $reads_len = (split /\t/,$phasing_res)[1];
-		#	print NOPHASING "$pre_reads_id\t$reads_len\n";
-		}else{
+		if ($ifphased > 0) {
 			my ($phased_hap,$acc,$reads_chr,$reads_start,$reads_end,$hap_block) = (split /\t/,$phasing_res)[0,1,2,3,4,5];
 			if ($acc >= 90 && $phased_hap == 1) {
 				print PHASE1 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
@@ -56,8 +53,6 @@ while (<$sam_file>) {
 			}elsif ($acc >= 90 && $phased_hap == 2) {
 				print PHASE2 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
 				#print "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\n";
-			}elsif ($acc < 90) {
-		#		print LOWACC "$pre_reads_id\t$phased_hap\t$acc%\t$reads_len\n";
 			}
 		}
 	
@@ -73,26 +68,25 @@ close $sam_file;
 my $sam_line = $tmp[0];
 my $phasing_res = &phasing_reads(@tmp);
 my $ifphased = (split /\t/,$phasing_res)[0];
-my ($reads_seq,$reads_q) = (split /\t/,$tmp[0])[9,10];
+#my ($reads_seq,$reads_q) = (split /\t/,$tmp[0])[9,10];
 
-if ($ifphased == 0) {
-	#my $reads_len = (split /\t/,$phasing_res)[1];
-	#print NOPHASING "$pre_reads_id\t$reads_len\n";
-}else{
+if ($ifphased > 0) {
 	my ($phased_hap,$acc,$reads_chr,$reads_start,$reads_end,$hap_block) = (split /\t/,$phasing_res)[0,1,2,3,4,5];
        	if ($acc >= 90 && $phased_hap == 1) {
-       		print PHASE1 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
+		print PHASE1 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
        	}elsif ($acc >= 90 && $phased_hap == 2) {
-               	print PHASE2 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
-      	}elsif ($acc < 90) {
-		#print LOWACC "$pre_reads_id\t$phased_hap\t$acc%\t$reads_len\n";
-        }
+		print PHASE2 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
+      	}
 }
 
 #close NOPHASING;
 close PHASE1;
 close PHASE2;
 #close LOWACC;
+
+#my $time2 = time();
+#my $time = ($time2 - $time1);
+#print "$time s\n";
 
 ## sub progrem ##
 
@@ -127,15 +121,17 @@ sub phasing_reads {
 			#print "end: $end\n\n";
 			
 			my @tmp_hap = @{$hap->{$contig}};
-			@tmp_hap = @tmp_hap[(&binarySearch($start,\@tmp_hap)-1)..(@tmp_hap-1)];
+			my $search_s = &binarySearch($start,\@tmp_hap);
+			my $search_e = &binarySearch($end,\@tmp_hap);
+			@tmp_hap = @tmp_hap[($search_s-1)..($search_e+1)];
 			
 			## keep the biggest hap block for phaing ##
 			my ($hap_block,%block_count);
 			if (defined $block) {
 				foreach (@tmp_hap) {
-					my ($pos,$snp1,$snp2,$tmp_block) = split;
+					my ($pos,$snp1,$snp2,$tmp_block) = ($_->{pos}, $_->{snp1}, $_->{snp2}, $_->{block});
 					if ($pos > $end) { last };
-					push @{$hap_block->{$tmp_block}},"$pos\t$snp1\t$snp2";
+					push @{$hap_block->{$tmp_block}}, {pos => $pos, snp1=> $snp1, snp2 => $snp2};
 					$block_count{$tmp_block} ++;
 				}
 				$max_block = ();
@@ -156,7 +152,7 @@ sub phasing_reads {
 			
 			my $overlap = 0;
 			foreach (@tmp_hap) {
-				my ($pos,$snp1,$snp2) = (split)[0,1,2];
+				my ($pos,$snp1,$snp2) = ($_->{pos}, $_->{snp1}, $_->{snp2});
 				if ($pos >= $start && $pos <= $end) {
 					$overlap = 1;
 					## get base in reads ##
@@ -191,9 +187,7 @@ sub phasing_reads {
 		}
 	}
 	
-	if ($not_phase == $n_tmp || $total_count < $snp_nums_for_reads) {
-		return("0\t0\t$reads_chr\t$reads_start\t$reads_end");
-	}else{
+	if ($total_count >= $snp_nums_for_reads) {
 		if ($snp1_count > $snp2_count) {
 			$accuracy = sprintf("%.2f",$snp1_count / $total_count * 100);
 			return("1\t$accuracy\t$reads_chr\t$reads_start\t$reads_end\t$max_block");
@@ -203,8 +197,9 @@ sub phasing_reads {
 		}else{
 			return("0\t0\t$reads_chr\t$reads_start\t$reads_end");
 		}
+	}else{
+		return("0\t0\t$reads_chr\t$reads_start\t$reads_end");
 	}
-	
 }
 
 sub get_base_in_target {
@@ -289,27 +284,21 @@ sub get_s_e_pos {
 }
 
 sub binarySearch {
-	my ($pos,$dat) = @_;
-	my $high = @$dat;
-	my $low = 1;
-	
-	if ($pos > (split /\t/,@$dat[$high-1])[0]) {
-		return $high;
-	}
-	
-	while ($pos <= (split /\t/,@$dat[$high-1])[0]) {
-		my $mid = int(($low + $high) / 2);
-		if ($pos == (split /\t/,@$dat[$mid-1])[0]) {
-			return $mid;
-		}elsif ($pos > (split /\t/,@$dat[$mid-1])[0]) {
-			$low = $mid;
-		}elsif ($pos < (split /\t/,@$dat[$mid-1])[0]) {
-			$high = $mid;
-		}
-		if ($high - $low < 10) {
-			return $low;
-		}
-	}
+	my ($pos,$arr) = @_;
+	my ($low, $high) = (0, $#$arr);
+
+	while ($low <= $high) {
+        	my $mid = int(($low + $high) / 2);
+        	my $mid_pos = $arr->[$mid]->{pos};
+        	if ($mid_pos == $pos) {
+            		return $mid;
+        	} elsif ($mid_pos < $pos) {
+            		$low = $mid + 1;
+        	} else {
+            		$high = $mid - 1;
+        	}
+    	}
+    	return $low;
 }
 
 
