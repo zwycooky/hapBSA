@@ -9,38 +9,49 @@ BWA v0.7.17-r1188 or higher
 Hisat2 v2.2.1 or higher  
 Whatshap v1.7 or higher  
 Perl module Parallel::ForkManager v2.03  
+Perl module List::Util
 
-## Quick start
+## Usage of hapBSA
 ```
 Usage:
   scripts/hapBSA_V4.pl -OPTIONS VALUES
 
 options:
 --input options
-	-1 FILE         bam file of pool1
-	-2 FILE         bam file of pool2
-	-p FILE         hap file
-	-r REFGENOME    reference genome for mapping
+	-1 FILE			bam file of pool1
+	-2 FILE			bam file of pool2
+	-p FILE			hap file
+	-r REFGENOME	reference genome for mapping
 
 --sub progrem
-	-e SCRIPT       path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
-	-m SCRIPT       path of snpMapper_sub.pl
+	-e SCRIPT		path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
+	-m SCRIPT		path of snpMapper_sub.pl
 	
 --output options         
-	-o PREFIX       prefix of output file
+	-o PREFIX		prefix of output file
 
 --criteria options
-	-w INT          window length (bp) [default: 1000000]
-	-s INT          window step (bp)   [default: 600000]
-	-d INT          minimum depth for calculating SNP-index [default: 10]
-	-D INT		minimum phased read numbers of a window [default: 50]
-	-N INT		minimum read numbers of hap block [default: 10]
-	-n INT		minimum phased numbers of phased snps for reads [default: 3]
+	-w INT			window length (bp) [default: 1000000]
+	-s INT			window step (bp)   [default: 600000]
+	-d INT			minimum depth for calculating SNP-index [default: 10]
+	-D INT			minimum phased read numbers of a window [default: 50]
+	-N INT			minimum read numbers of hap block [default: 12]
+	-n INT			minimum numbers of phased snps for a read [default: 3]
 
 --perfromanat options
 	-a INT          cpus cores used for the analysis [default: 10]
 ```
 
+## Quick start
+```
+perl scripts/hapBSA_V4.pl \
+	-1 pool1.bam \
+	-2 pool2.bam \
+	-p haplotype.txt -r reference.fa \
+	-e scripts/separating_reads_by_haplotype.binarySearch.hapBSA.block.pl \
+	-m scripts/snpMapper_sub.pl \
+	-o output_prefix
+```
 
 ## Step by step tutorial
 ## 1. download the scripts and test data
