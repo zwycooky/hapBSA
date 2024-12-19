@@ -12,25 +12,25 @@ my $Usage = "Usage:\n  $0 -OPTIONS VALUES
 
 options:
 --input options
-	-1 FILE         bam file of pool1
-	-2 FILE         bam file of pool2
-	-p FILE         hap file
-	-r REFGENOME    reference genome for mapping
+	-1 FILE			bam file of pool1
+	-2 FILE			bam file of pool2
+	-p FILE			hap file
+	-r REFGENOME	reference genome for mapping
 
 --sub progrem
-	-e SCRIPT       path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
-	-m SCRIPT       path of snpMapper_sub.pl
+	-e SCRIPT		path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
+	-m SCRIPT		path of snpMapper_sub.pl
 	
 --output options         
-	-o PREFIX       prefix of output file
+	-o PREFIX		prefix of output file
 
 --criteria options
-	-w INT          window length (bp) [default: 1000000]
-	-s INT          window step (bp)   [default: 600000]
-	-d INT          minimum depth for calculating SNP-index [default: 10]
-	-D INT		minimum phased read numbers of a window [default: 50]
-	-N INT		minimum read numbers of hap block [default: 12]
-	-n INT		minimum phased numbers of phased snps for reads [default: 3]
+	-w INT			window length (bp) [default: 1000000]
+	-s INT			window step (bp)   [default: 600000]
+	-d INT			minimum depth for calculating SNP-index [default: 10]
+	-D INT			minimum phased read numbers of a window [default: 50]
+	-N INT			minimum read numbers of hap block [default: 12]
+	-n INT			minimum numbers of phased snps for a read [default: 3]
 
 --perfromanat options
 	-a INT          cpus cores used for the analysis [default: 10]     
