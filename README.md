@@ -80,7 +80,8 @@ The columns indicate:
 2. SNP position
 3. haplotype A
 4. haplotype B
-5. haplotype block    
+5. haplotype block
+  
 **Notice:** The haplotype block (column 5) is optional if your haplotype information is obtained using PollenSeq or other chromosome-level phasing methods.  
 'haplotype.txt' can be transfered by 'get_phased_SNP_from_whatshap.pl' from phased VCF file generated from whatshap
 ```
@@ -107,7 +108,8 @@ The columns are:
 6. 0.01 threshold for hap-index/SNP-index
 7. 0.05 threshold for hap-index/SNP-index
 8. 0.01 threshold for ED4
-9. 0.05 threshold for ED4  
+9. 0.05 threshold for ED4
+  
 **Notice:** Hap-index < 0 indicates the frequency of hap A in pool1 < frequency of hap A in pool2. **This is only meaningful if the haplotypes are chromosome-level phasing.**
 
 ## Step by step tutorial
