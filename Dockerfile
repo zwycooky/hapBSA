@@ -40,14 +40,15 @@ RUN cpanm Cwd
 RUN cpanm List::Util
 RUN cpanm Getopt::Std
 RUN cpanm Parallel::ForkManager
-RUN apt-get install -y r-base r-base-dev
+#RUN apt-get install -y r-base r-base-dev
 
 RUN git clone https://gh.llkk.cc/https://github.com/zwycooky/hapBSA.git
 RUN chmod +x /hapBSA/scripts/*
 
 # Add the R library path to the PATH variable so that it is available to your applications.
-ENV PATH=$PATH:$R_HOME/lib/R/library
+# ENV PATH=$PATH:$R_HOME/lib/R/library
 
+# Add the path of scripts to the PATH variable
 ENV PATH=$PATH:/hapBSA/scripts/:/samtools-1.17/:/gatk-4.4.0.0/:/bwa/:/hisat2-2.2.1/
 
 # Start a new shell session when the container runs
