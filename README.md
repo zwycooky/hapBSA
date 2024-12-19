@@ -39,7 +39,7 @@ options:
 	-n INT			minimum numbers of phased snps for a read [default: 3]
 
 --perfromanat options
-	-a INT          cpus cores used for the analysis [default: 10]
+	-a INT			cpus cores used for the analysis [default: 10]
 ```
 
 ## Quick start
