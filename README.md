@@ -53,6 +53,48 @@ perl scripts/hapBSA_V4.pl \
 	-m scripts/snpMapper_sub.pl \
 	-o output_prefix
 ```
+Before starting, please ensure that the required tools are correctly installed and added to the $PATH to run this tool.
+
+## Format of input file
+Example of 'haplotype.txt' file:
+```
+chr1    36142   A       C       36142
+chr1    36243   T       C       36142
+chr1    36315   A       G       36142
+chr1    36316   A       T       36142
+chr1    36333   C       A       36142
+chr1    36335   C       G       36142
+chr1    78839   A       G       78839
+chr1    78884   C       T       78839
+chr1    126320  G       T       126320
+chr1    126404  T       C       126320
+chr1    126432  C       A       126320
+chr1    139327  C       T       139327
+chr1    139365  T       C       139327
+chr1    255193  G       A       255193
+chr1    255936  C       T       255936
+chr1    256020  T       A       255936
+```
+The columns indicate the chromosome ID, SNP position, haplotype A, haplotype B, and haplotype block, respectively.  
+The haplotype block (the last column) is optional if your haplotype information is obtained using PollenSeq or other chromosome-level phasing methods.  
+'haplotype.txt' can be transfered by 'get_phased_SNP_from_whatshap.pl' from phased VCF file generated from whatshap
+```
+perl scripts/get_phased_SNP_from_whatshap.pl whatshap.vcf haplotype.txt
+```
+
+## Format of output file
+The output file of hapBSA will be named as ${output_prefix}.hapBSA.sliding_window.txt
+```
+chr1    4100000 0.65752997002997	0.1223  0.0909  0.4772  0.3689  0.2366  0.1418
+chr1    4700000 0.65752997002997	0.0537  0.0712  0.4620  0.3531  0.2199  0.1288
+chr1    5300000 NA					0.0283  0.0641  0.4985  0.3847  0.2555  0.1524
+chr1    5900000 NA					0.0743  0.0591  0.4998  0.3828  0.2574  0.1509
+chr1    6500000 NA					0.0695  0.0740  0.4817  0.3709  0.2389  0.1417
+chr1    7100000 NA					0.0433  0.0826  0.4650  0.3566  0.2229  0.1312
+chr1    7700000 NA					-0.0028 0.0643  0.4654  0.3572  0.2228  0.1312
+```
+The columns indicate the chromosome ID, sliding window position, hap-index, SNP-index, ED4, 0.01 threshold for hap-index/SNP-index, 0.05 threshold for hap-index/SNP-index, 0.01 threshold for ED4 and 0.05 threshold for ED4, respectively.  
+**Notice:** Hap-index < 0 indicates the frequency of hap A in pool1 < frequency of hap A in pool2. **This is only meaningful if the haplotypes are chromosome-level phasing.**
 
 ## Step by step tutorial
 ## 1. download the scripts and test data
