@@ -53,6 +53,7 @@ export HAPBSA_DIR=`realpath hapBSA_Dir`
 wget https://figshare.com/ndownloader/files/51266927 -O ->> hapBSA_test_data.gz
 tar zxf hapBSA_test_data.gz
 mv maternal_fq pool_fq test_genome $HAPBSA_DIR
+
 ```
 Three directories, 'maternal_fq', 'pool_fq' and 'test_genome', will be generated after this step, and containing fastq files of meternal accession, fastq files of the two sample pools and a fasta file of test genome, respectively.
 
