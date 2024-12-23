@@ -279,7 +279,7 @@ while (<IN>) {
 close IN;
 
 open OUT,'>',"$outprefix.hapBSA.sliding_window.txt" or die;
-foreach (sort {(split /\t/,$a)[0] <=> (split /\t/,$b)[0] or (split /\t/,$a)[1] <=> (split /\t/,$b)[1]} @res ) {
+foreach (sort {(split /\t/,$a)[0] cmp (split /\t/,$b)[0] or (split /\t/,$a)[1] <=> (split /\t/,$b)[1]} @res ) {
 	print OUT "$_\n";
 }
 close OUT;
