@@ -13,7 +13,7 @@ Haplotype-based Bulked segregant analysis
 - [Plot hapBSA result](#plot-hapbsa-result)
 
 ## Introduction
-hapBSA, a haplotype-based bulked segregant analysis tool for QTL mapping in half-sib populations. HapBSA uses maternal haplotype information to phase the short reads of the two sample pools and focuses on calculating the frequency bias of maternal haplotypes between two sample pools.
+hapBSA, a haplotype-based bulked segregant analysis tool for QTL mapping in half-sib populations/F1 population of outcross species. HapBSA uses maternal haplotype information to phase the short reads of the two sample pools and focuses on calculating the frequency bias of maternal haplotypes between two sample pools.
 
 ## Requirements
 SAMtools v1.16.1 or higher  
