@@ -11,6 +11,7 @@ Haplotype-based Bulked segregant analysis
 - [Format of output file](#format-of-output-file)
 - [Step by step tutorial (docker)](#step-by-step-tutorial)
 - [Plot hapBSA result](#plot-hapbsa-result)
+- [Citation](#citation)
 
 ## Introduction
 hapBSA, a haplotype-based bulked segregant analysis tool for QTL mapping in half-sib populations/F1 population of outcross species. HapBSA uses maternal haplotype information to phase the short reads of the two sample pools and focuses on calculating the frequency bias of maternal haplotypes between two sample pools.
@@ -239,5 +240,5 @@ Rscript scripts\hapBSA_plot_cmdArg.R example_file\11_87864065_ngs_block.hapBSA.s
 '11_87864065_ngs_block.hapBSA.sliding_window.txt' is an example file of output of hapBSA.  
 **Notice:** Before you run this Rscript you need to transfer the chromosome id into numbers (e.g. chr12 -> 12) and remove unanchored contig/scafford in the output of hapBSA.
 
-#Citation
+# Citation
 
