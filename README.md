@@ -238,3 +238,6 @@ Rscript scripts\hapBSA_plot_cmdArg.R example_file\11_87864065_ngs_block.hapBSA.s
 ```
 '11_87864065_ngs_block.hapBSA.sliding_window.txt' is an example file of output of hapBSA.  
 **Notice:** Before you run this Rscript you need to transfer the chromosome id into numbers (e.g. chr12 -> 12) and remove unanchored contig/scafford in the output of hapBSA.
+
+#Citation
+
