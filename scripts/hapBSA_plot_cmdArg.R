@@ -6,6 +6,9 @@ output <- Args[2]
 
 dat <- read.table(input,header=F)
 
+# order by chr and pos
+dat <- dat[order(dat[,1],dat[,2]),]
+
 chr_vec <- unique(dat[,1])
 chr_len_vec <- chr_vec
 ## format pos ##
