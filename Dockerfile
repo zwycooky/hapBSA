@@ -26,7 +26,7 @@ ENV PATH=$PATH:/Python-3.12.8/bin/
 
 RUN pip install whatshap -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com 
 
-RUN git clone https://gh.llkk.cc/https://github.com/lh3/bwa.git && cd bwa && make
+RUN git clone https://github.com/lh3/bwa.git && cd bwa && make
 
 RUN wget https://cloud.biohpc.swmed.edu/index.php/s/oTtGWbWjaxsQ2Ho/download -O ->> hisat2-2.2.1-Linux_x86_64.zip && unzip hisat2-2.2.1-Linux_x86_64.zip
 
@@ -43,7 +43,7 @@ RUN cpanm Getopt::Std
 RUN cpanm Parallel::ForkManager
 #RUN apt-get install -y r-base r-base-dev
 
-RUN git clone https://gh.llkk.cc/https://github.com/zwycooky/hapBSA.git
+RUN git clone https://github.com/zwycooky/hapBSA.git
 RUN chmod +x /hapBSA/scripts/*
 
 # Add the R library path to the PATH variable so that it is available to your applications.
