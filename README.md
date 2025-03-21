@@ -23,6 +23,7 @@ Hisat2 v2.2.1 or higher
 Whatshap v1.7 or higher  
 Perl module Parallel::ForkManager v2.03  
 Perl module List::Util
+Perl module Math::Random
 
 ## Usage of hapBSA
 ```
@@ -49,7 +50,7 @@ options:
 	-d INT			minimum depth for calculating SNP-index [default: 10]
 	-D INT			minimum phased read numbers of a window [default: 50]
 	-N INT			minimum read numbers of hap block [default: 12]
-	-n INT			minimum numbers of phased snps for a read [default: 3]
+	-n INT			minimum numbers of phased snps for a read [default: 4]
 
 --perfromanat options
 	-a INT			cpus cores used for the analysis [default: 10]
@@ -104,26 +105,20 @@ perl scripts/get_phased_SNP_from_whatshap.pl whatshap.vcf haplotype.txt
 ## Format of output file
 The output file of hapBSA will be named as ${output_prefix}.hapBSA.sliding_window.txt
 ```
-chr1    4100000 0.65752997002997	0.1223  0.0909  0.4772  0.3689  0.2366  0.1418
-chr1    4700000 0.65752997002997	0.0537  0.0712  0.4620  0.3531  0.2199  0.1288
-chr1    5300000 NA			0.0283  0.0641  0.4985  0.3847  0.2555  0.1524
-chr1    5900000 NA			0.0743  0.0591  0.4998  0.3828  0.2574  0.1509
-chr1    6500000 NA			0.0695  0.0740  0.4817  0.3709  0.2389  0.1417
-chr1    7100000 NA			0.0433  0.0826  0.4650  0.3566  0.2229  0.1312
-chr1    7700000 NA			-0.0028 0.0643  0.4654  0.3572  0.2228  0.1312
+chr1    4100000 0.6575	0.1223  0.4772  0.3689
+chr1    4700000 0.6575	0.0537  0.4620  0.3531
+chr1    5300000 NA	0.0283  0.4985  0.3847
+chr1    5900000 NA	0.0743  0.4998  0.3828
+chr1    6500000 NA	0.0695  0.4817  0.3709
+chr1    7100000 NA	0.0433  0.4650  0.3566
 ```
 The columns are:  
 1. chromosome ID
 2. sliding window position
 3. hap-index
 4. SNP-index
-5. ED4
-6. 0.01 threshold for hap-index/SNP-index
-7. 0.05 threshold for hap-index/SNP-index
-8. 0.01 threshold for ED4
-9. 0.05 threshold for ED4
-  
-**Notice:** Hap-index < 0 indicates the frequency of hap A in pool1 < frequency of hap A in pool2. **This is only meaningful if the haplotypes are chromosome-level phasing.**
+5. 0.01 threshold for hap-index/SNP-index
+6. 0.05 threshold for hap-index/SNP-index
 
 ## Step by step tutorial
 ## 1. download the scripts and test data
