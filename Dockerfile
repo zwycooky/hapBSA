@@ -38,6 +38,7 @@ RUN apt-get install -y cpanminus
 
 RUN cpanm Cwd
 RUN cpanm List::Util
+RUN cpanm Math::Random
 RUN cpanm Getopt::Std
 RUN cpanm Parallel::ForkManager
 #RUN apt-get install -y r-base r-base-dev
