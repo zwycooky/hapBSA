@@ -22,7 +22,7 @@ BWA v0.7.17-r1188 or higher
 Hisat2 v2.2.1 or higher  
 Whatshap v1.7 or higher  
 Perl module Parallel::ForkManager v2.03  
-Perl module List::Util
+Perl module List::Util  
 Perl module Math::Random
 
 ## Usage of hapBSA
