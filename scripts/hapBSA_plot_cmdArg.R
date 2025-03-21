@@ -27,7 +27,7 @@ for (i in 1:nrow(dat)) {
 
 #tar_pos <- 87864065 + sum(chr_len_vec[1:11])
 
-colnames(dat) <- c("chr","pos","hapIndex","SNPIndex","ED4","index001","index005","ED001","ED005")
+colnames(dat) <- c("chr","pos","hapIndex","SNPIndex","index001","index005")
 
 plot_dat <- dat
 plot_dat[,3] <- abs(plot_dat[,3])
@@ -45,8 +45,8 @@ points(x=plot_dat[,2],y=plot_dat[,4],col=col2,pch=20)
 sig005col <- rgb(209,187,158,alpha=140,maxColorValue=255)
 sig001col <- rgb(167,146,119,alpha=140,maxColorValue=255)
 
-lines(x=plot_dat[,2],y=plot_dat[,6],col=sig001col)
-lines(x=plot_dat[,2],y=plot_dat[,7],col=sig005col)
+lines(x=plot_dat[,2],y=plot_dat[,5],col=sig001col)
+lines(x=plot_dat[,2],y=plot_dat[,6],col=sig005col)
 
 
 # get chr sep pos #
