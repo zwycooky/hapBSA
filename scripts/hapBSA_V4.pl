@@ -53,8 +53,8 @@ my $read_nums_window	= (defined $opt_D)?$opt_D:50;
 my $sep_script          = $opt_e;
 my $snpMapper           = $opt_m;
 
-die "ERROR:$!" unless (-e $sep_script);
-die "ERROR:$!" unless (-e $snpMapper);
+#die "ERROR:$!" unless (-e $sep_script);
+#die "ERROR:$!" unless (-e $snpMapper);
 
 $sep_script = abs_path($sep_script);
 $snpMapper  = abs_path($snpMapper);
