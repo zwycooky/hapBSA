@@ -20,7 +20,9 @@ RUN apt-get install -y --no-install-recommends libcurl4-openssl-dev
 RUN apt-get install -y --no-install-recommends libffi-dev
 RUN apt-get install -y --no-install-recommends unzip
 RUN apt-get install -y --no-install-recommends parallel
-RUN apt-get install -y --no-install-recommends openjdk-17-jdk
+#RUN apt-get install -y --no-install-recommends openjdk-17-jdk
+RUN apt update
+RUN apt install -y --no-install-recommends openjdk-17-jdk
 RUN apt-get install -y --no-install-recommends pkg-config
 RUN apt-get install -y --no-install-recommends python3
 RUN apt-get install -y --no-install-recommends python3-pip
