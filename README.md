@@ -227,6 +227,7 @@ docker run --user $(id -u):$(id -g) \
 	-1 /pool_bam/A.sorted.bam \
 	-2 /pool_bam/B.sorted.bam \
 	-p /snp/parent.whatshap.ngs.phased.txt \
+	-r /genome/test.genome.fa \
 	-e separating_reads_by_haplotype.binarySearch.hapBSA.block.pl \
 	-m snpMapper_sub.pl \
 	-o /output/test.hapBSA	
