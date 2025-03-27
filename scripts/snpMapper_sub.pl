@@ -1,7 +1,8 @@
 ﻿#!/usr/bin/perl
 
-use List::Util qw(sum);
 use strict;
+use List::Util qw(sum);
+use Math::Random qw(random_binomial);
 
 my ($refgenome,$bam1,$bam2,$depth) = @ARGV[0,1,2,3];
 my $Usage = "\n\t$0 <ref genome> <bam1> <bam2> <Depth>
@@ -10,7 +11,7 @@ die $Usage unless (@ARGV == 4);
 #############################################
 
 open my $fh_pileup,"samtools mpileup -q 45 -Q 20 -ABf $refgenome $bam1 $bam2|";
-my ($snp_count,$index_sum,$ED4_sum,$index05_sum,$index01_sum,$ED405_sum,$ED401_sum,$index1_sum,$ED41_sum,%ED4_thre,%SNPindex_thre);
+my ($snp_count,$sim_snp_count,$index_sum,$index05_sum,$index01_sum,$index1_sum,%SNPindex_thre);
 while (<$fh_pileup>) {
 	chomp;
 	
@@ -60,18 +61,6 @@ while (<$fh_pileup>) {
 	my $wt_freq  = sprintf "%.4f", $wt{ $alleles[0] } / $wtcov1;      # 0.3
 	my $deltaSNP = sprintf "%.4f", ( $mut_freq - $wt_freq );
 	
-	my $mutAfrq = $mut{'A'} / $mutcov1;
-	my $mutCfrq = $mut{'C'} / $mutcov1;
-	my $mutGfrq = $mut{'G'} / $mutcov1;
-	my $mutTfrq = $mut{'T'} / $mutcov1;
-	
-	my $wtAfrq = $wt{'A'} / $wtcov1;
-        my $wtCfrq = $wt{'C'} / $wtcov1;
-        my $wtGfrq = $wt{'G'} / $wtcov1;
-        my $wtTfrq = $wt{'T'} / $wtcov1;
-
-	my $ED4 = sprintf "%.4f", ( $mut_freq - $wt_freq ) * ( $mut_freq - $wt_freq );
-
 	if ($mut_freq > 0.9 && $wt_freq > 0.9) {
 		next;
 	}
@@ -82,64 +71,83 @@ while (<$fh_pileup>) {
         }
 	
 	## random threshold ##
-	my (@thre_index,@thre_ED4);
-	foreach (1..1000) {
-		
-		my ($mut_rand, $wt_rand) = (0, 0);
-		my $mthre = sum(map { rand() >= 0.5 } (1..25)) / 25;
-		my $wthre = sum(map { rand() >= 0.5 } (1..25)) / 25;
-		$mut_rand += sum(map { rand() >= $mthre } (1..$mutcov1));
-		$wt_rand += sum(map { rand() >= $wthre } (1..$wtcov1));
-		
-		my $rm1 = $mut_rand / $mutcov1;
-		my $rm2 = 1 - $rm1;
-		my $rw1 = $wt_rand / $wtcov1;
-		my $rw2 = 1 - $rw1;
-		my $rand_SNPindex = sprintf "%.4f", abs($rm1 - $rw1);
-		my $rand_ED4 = sprintf "%.4f", ($rm1 - $rw1)*($rm1 - $rw1);
-		push @thre_index,$rand_SNPindex;
-		push @thre_ED4,$rand_ED4;
-	}
+	$sim_snp_count ++;
+	if ($sim_snp_count <= 3000) {
+    		my @thre_index;
+    		$#thre_index = 999; # 预分配数组大小为1000
 
-	@thre_index = sort {$b <=> $a} @thre_index;
-	@thre_ED4 = sort {$b <=> $a} @thre_ED4;
-	
-	my @sig_tmp0501 = (9,49);
-	foreach (@sig_tmp0501) {
-		$SNPindex_thre{$_} += $thre_index[$_];
-		$ED4_thre{$_} += $thre_ED4[$_];
+    		foreach my $i (0..999) {
+        		my $mthre = random_binomial(1 ,25, 0.5) / 25;
+        		my $wthre = random_binomial(1 ,25, 0.5) / 25;
+
+        		my $mut_rand = random_binomial(1 ,$mutcov1, 1 - $mthre);
+        		my $wt_rand  = random_binomial(1 ,$wtcov1, 1 - $wthre);
+
+        		my $rand_SNPindex = abs( 
+            			$mut_rand / $mutcov1 - $wt_rand / $wtcov1 
+        		);
+        		$thre_index[$i] = $rand_SNPindex;
+    		}
+
+    		@thre_index = sort { $b <=> $a } @thre_index;
+
+    		my @sig_tmp0501 = (9, 49);
+    		foreach my $sig (@sig_tmp0501) {
+        		$SNPindex_thre{$sig} += $thre_index[$sig];
+    		}
 	}
+=pod
+	if ($sim_snp_count <= 3000) {
+		my (@thre_index);
+		foreach (1..1000) {
+			my ($mut_rand, $wt_rand) = (0, 0);
+			my $mthre = sum(map { rand() >= 0.5 } (1..25)) / 25;
+			my $wthre = sum(map { rand() >= 0.5 } (1..25)) / 25;
+			$mut_rand += sum(map { rand() >= $mthre } (1..$mutcov1));
+			$wt_rand += sum(map { rand() >= $wthre } (1..$wtcov1));
+		
+			my $rm1 = $mut_rand / $mutcov1;
+			my $rm2 = 1 - $rm1;
+			my $rw1 = $wt_rand / $wtcov1;
+			my $rw2 = 1 - $rw1;
+			my $rand_SNPindex = sprintf "%.4f", abs($rm1 - $rw1);
+			push @thre_index,$rand_SNPindex;
+		}
+
+		@thre_index = sort {$b <=> $a} @thre_index;
+	
+		my @sig_tmp0501 = (9,49);
+		foreach (@sig_tmp0501) {
+			$SNPindex_thre{$_} += $thre_index[$_];
+		}
+	}
+=cut
 
 	# output #
-	#print "$chr_num\t$Pos\t$refBase\t$mut_freq\t$wt_freq\t$deltaSNP\t$ED4\t$thre05_index\t$thre01_index\t$thre05_ED4\t$thre01_ED4\t$mutcov1\t$mut{'A'}\t$mut{'C'}\t$mut{'G'}\t$mut{'T'}\t$wtcov1\t$wt{'A'}\t$wt{'C'}\t$wt{'G'}\t$wt{'T'}\n";
 	$snp_count ++;
 	$index_sum += $deltaSNP;
-	$ED4_sum += $ED4;
 }
 close $fh_pileup;
 
-my ($index_window,$ED4_window,@res);
+my ($index_window,@res);
 if ($snp_count == 0) {
-	foreach (1..4) {
+	foreach (1..2) {
 		push @res,'NA';
 	}
 	$index_window = 'NA';
-	$ED4_window = 'NA';
 }else{
-	$index_window = sprintf "%.4f", ($index_sum / $snp_count);
-	$ED4_window = sprintf "%.4f", ($ED4_sum / $snp_count);
+	$index_window = sprintf "%.4f", abs($index_sum / $snp_count);
 	my @sig_0501 = (9,49);
+	if ($sim_snp_count > 3000) {
+		$sim_snp_count = 3000;
+	}
 	foreach (@sig_0501) {
-		my $tmp_window = sprintf "%.4f", ($SNPindex_thre{$_} / $snp_count);
-                push @res, $tmp_window;
-        }
-	foreach (@sig_0501) {
-                my $tmp_window = sprintf "%.4f", ($ED4_thre{$_} / $snp_count);
+		my $tmp_window = sprintf "%.4f", ($SNPindex_thre{$_} / $sim_snp_count);
                 push @res, $tmp_window;
         }
 }
 my $res = join("\t",@res);
-print "$index_window\t$ED4_window\t$res";
+print "$index_window\t$res";
 
 # base_counter: calculate base counts for each base in (A,C,G,T) order
 sub base_counter {
