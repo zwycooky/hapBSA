@@ -10,79 +10,50 @@ die $Usage unless (@ARGV == 4);
 
 #my $time1 = time();
 ## read hap data ##
-my ($hap,$block);
+my (@hap,@hap_pos,$block);
 open HAP,'<',"$phasing_data" or die "Error: Cannot open hap file:$!";
 while (<HAP>) {
 	chomp;
 	my ($contig,$pos,$snp1,$snp2,$block_id) = (split)[0,1,2,3,4];
 	$block = $block_id;
-	#push @{$hap->{$contig}},"$pos\t$snp1\t$snp2\t$block";
-	push @{$hap->{$contig}}, { pos => $pos, snp1 => $snp1, snp2 => $snp2, block => $block_id };
+	push @hap_pos, $pos;
+	push @hap, "$pos\t$snp1\t$snp2\t$block_id";
 }
 close HAP;
 
 ## start phasing pacbio/NGS reads ##
-my ($pre_reads_id,@tmp,$fir);
+my ($reads_forPhasing);
 open my $sam_file,"samtools view -q 45 $sam|" or die "Error: Cannot open sam/bam file:$!";
-
-#open NOPHASING,'>',"$outprefix.nophase.txt";
-open PHASE1,'>',"$outprefix.hap1.txt";
-open PHASE2,'>',"$outprefix.hap2.txt";
-#open LOWACC,'>',"$outprefix.low.accuracy.reads.txt";
 
 while (<$sam_file>) {
 	chomp;
-
-	my ($reads_id,$mapQ) = (split /\t/,$_)[0,1];
-
-	if ($fir == 0) {
-		$fir = 1;
-		push @tmp, $_;
-		$pre_reads_id = $reads_id;
-	}elsif ($pre_reads_id ne $reads_id) {
-		my $sam_line = $tmp[0];
-		my $phasing_res = &phasing_reads(@tmp);
-		my $ifphased = (split /\t/,$phasing_res)[0];	
-		#my ($reads_seq,$reads_q) = (split /\t/,$tmp[0])[9,10];
-		
-		if ($ifphased > 0) {
-			my ($phased_hap,$acc,$reads_chr,$reads_start,$reads_end,$hap_block) = (split /\t/,$phasing_res)[0,1,2,3,4,5];
-			if ($acc >= 90 && $phased_hap == 1) {
-				print PHASE1 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
-				#print "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\n";
-			}elsif ($acc >= 90 && $phased_hap == 2) {
-				print PHASE2 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
-				#print "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\n";
-			}
-		}
-	
-		@tmp = ();
-		push @tmp, $_;
-		$pre_reads_id = $reads_id;		
-	}else{
-		push @tmp, $_;
-	}
+	my ($reads_id) = (split /\t/,$_)[0];
+	push @{$reads_forPhasing->{$reads_id}}, $_;
 }
 close $sam_file;
 
-my $sam_line = $tmp[0];
-my $phasing_res = &phasing_reads(@tmp);
-my $ifphased = (split /\t/,$phasing_res)[0];
-#my ($reads_seq,$reads_q) = (split /\t/,$tmp[0])[9,10];
+open PHASE1,'>',"$outprefix.hap1.txt";
+open PHASE2,'>',"$outprefix.hap2.txt";
+foreach my $reads_id (sort keys %{$reads_forPhasing}) {
 
-if ($ifphased > 0) {
-	my ($phased_hap,$acc,$reads_chr,$reads_start,$reads_end,$hap_block) = (split /\t/,$phasing_res)[0,1,2,3,4,5];
-       	if ($acc >= 90 && $phased_hap == 1) {
-		print PHASE1 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
-       	}elsif ($acc >= 90 && $phased_hap == 2) {
-		print PHASE2 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
-      	}
+	my @tmp = @{$reads_forPhasing->{$reads_id}};
+		
+	my $phasing_res = &phasing_reads(\@tmp,\@hap,\@hap_pos);
+	my $ifphased = (split /\t/,$phasing_res)[0];	
+		
+	if ($ifphased > 0) {
+		my ($phased_hap,$acc,$reads_chr,$reads_start,$reads_end,$hap_block) = (split /\t/,$phasing_res)[0,1,2,3,4,5];
+		if ($acc >= 90 && $phased_hap == 1) {
+			print PHASE1 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
+			#print "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\n";
+		}elsif ($acc >= 90 && $phased_hap == 2) {
+			print PHASE2 "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\t$hap_block\n";
+			#print "$reads_chr\t$reads_start\t$reads_end\t$phased_hap\n";
+		}
+	}
 }
-
-#close NOPHASING;
 close PHASE1;
 close PHASE2;
-#close LOWACC;
 
 #my $time2 = time();
 #my $time = ($time2 - $time1);
@@ -92,13 +63,14 @@ close PHASE2;
 
 sub phasing_reads {
 	
-	my @tmp = @_;
+	my ($tmp,$hap,$hap_pos) = @_;
+
 	my $full_reads = 0;
-	my ($reads_name,$not_phase);
-	my $n_tmp = @tmp;
-	my ($accuracy,$snp1_count,$snp2_count,$total_count,$reads_len,$reads_chr,$reads_start,$reads_end,$max_block,$max_count);
+	my ($reads_name);
+	my $n_tmp = $#$tmp;
+	my ($accuracy,$snp1_count,$snp2_count,$total_count,$reads_len,$reads_chr,$reads_start,$reads_end,$max_block,$max_count,%phased_pos);
 	
-	foreach (@tmp) {
+	foreach (@{$tmp}) {
 		my ($reads_id,$contig,$start,$MQ,$cigar,$seq) = (split /\t/,$_)[0,2,3,4,5,9];
 		#print "$reads_id\n";
 		#print length($seq) . "\n";
@@ -112,7 +84,7 @@ sub phasing_reads {
 		$reads_chr = $contig;
 
 		# find overlap with phasing region #
-		if (exists $hap->{$contig}) {
+		if ($#$hap_pos > 0) {
 			# get start and end position in contig with an alignment #
 			my @cigar = &get_s_e_pos($start,$cigar);
 			my $end = shift @cigar;
@@ -120,18 +92,17 @@ sub phasing_reads {
 
 			#print "end: $end\n\n";
 			
-			my @tmp_hap = @{$hap->{$contig}};
-			my $search_s = &binarySearch($start,\@tmp_hap);
-			my $search_e = &binarySearch($end,\@tmp_hap);
-			@tmp_hap = @tmp_hap[($search_s-1)..($search_e+1)];
+			my $search_s = &binarySearch($start,$hap_pos);
+			my $search_e = &binarySearch($end,$hap_pos);
+			my @tmp_hap = @{hap}[($search_s-1)..($search_e+1)];
 			
 			## keep the biggest hap block for phaing ##
 			my ($hap_block,%block_count);
 			if (defined $block) {
 				foreach (@tmp_hap) {
-					my ($pos,$snp1,$snp2,$tmp_block) = ($_->{pos}, $_->{snp1}, $_->{snp2}, $_->{block});
+					my ($pos,$snp1,$snp2,$tmp_block) = (split);
 					if ($pos > $end) { last };
-					push @{$hap_block->{$tmp_block}}, {pos => $pos, snp1=> $snp1, snp2 => $snp2};
+					push @{$hap_block->{$tmp_block}}, "$pos\t$snp1\t$snp2";
 					$block_count{$tmp_block} ++;
 				}
 				$max_block = ();
@@ -152,9 +123,10 @@ sub phasing_reads {
 			
 			my $overlap = 0;
 			foreach (@tmp_hap) {
-				my ($pos,$snp1,$snp2) = ($_->{pos}, $_->{snp1}, $_->{snp2});
+				my ($pos,$snp1,$snp2) = (split);
 				if ($pos >= $start && $pos <= $end) {
 					$overlap = 1;
+					$phased_pos{$pos} = 1;
 					## get base in reads ##
 					my $relative_pos = $pos - $start + 1;
 					my $target_base_num = &get_base_in_target($relative_pos,@cigar);
@@ -176,17 +148,12 @@ sub phasing_reads {
 					last;
 				}
 			}
-			
-			if ($overlap == 0) {
-				$not_phase += 1;
-			}
-			
 			#print "$contig\t$start\t$end\n"
-		}else{
-			$not_phase += 1;
 		}
 	}
-	
+
+	if (keys %phased_pos < 3) { next };
+
 	if ($total_count >= $snp_nums_for_reads) {
 		if ($snp1_count > $snp2_count) {
 			$accuracy = sprintf("%.2f",$snp1_count / $total_count * 100);
@@ -289,7 +256,7 @@ sub binarySearch {
 
 	while ($low <= $high) {
         	my $mid = int(($low + $high) / 2);
-        	my $mid_pos = $arr->[$mid]->{pos};
+        	my $mid_pos = $arr->[$mid];
         	if ($mid_pos == $pos) {
             		return $mid;
         	} elsif ($mid_pos < $pos) {
