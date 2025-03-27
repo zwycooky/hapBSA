@@ -30,7 +30,7 @@ options:
 	-d INT			minimum depth for calculating SNP-index [default: 10]
 	-D INT			minimum phased read numbers of a window [default: 50]
 	-N INT			minimum read numbers of hap block [default: 12]
-	-n INT			minimum numbers of phased snps for a read [default: 3]
+	-n INT			minimum numbers of phased snps for a read [default: 4]
 
 --perfromanat options
 	-a INT			cpus cores used for the analysis [default: 10]     
@@ -43,12 +43,12 @@ my $bam2                = $opt_2;
 my $hap_file            = $opt_p;
 my $refgenome           = $opt_r;
 my $outprefix           = $opt_o;
-my $cpu                 = (defined $opt_a)?$opt_a:6;
+my $cpu                 = (defined $opt_a)?$opt_a:10;
 my $window_len          = (defined $opt_w)?$opt_w:1000000;
 my $step_len            = (defined $opt_s)?$opt_s:600000;
 my $depth               = (defined $opt_d)?$opt_d:10;
 my $block_read_nums	= (defined $opt_N)?$opt_N:12;
-my $snps_for_reads	= (defined $opt_n)?$opt_n:3;
+my $snps_for_reads	= (defined $opt_n)?$opt_n:4;
 my $read_nums_window	= (defined $opt_D)?$opt_D:50;
 my $sep_script          = $opt_e;
 my $snpMapper           = $opt_m;
@@ -86,8 +86,6 @@ if (!-e $tmpdir) {
 $tmpdir = abs_path($tmpdir);
 
 ## generating sliding window ##
-#my @command;
-open OUT,'>',"$outprefix.hapBSA.tmp.txt" or die "ERROR with output:$!";
 foreach (sort keys %chr_len) {
 	my $chr = $_;
 	my $chr_end = $chr_len{$chr};
@@ -135,6 +133,7 @@ foreach (sort keys %chr_len) {
 		## snp index ##
 		chomp(my $window_indexED4 = `perl $snpMapper $refgenome $tmpdir/$tmp_chr.$s.p1.bam $tmpdir/$tmp_chr.$s.p2.bam $depth`);
 		
+		open OUT,'>',"$tmpdir/$prefix.tmp.hapBSA.txt" or die;
 		## hap block mode for reads based phasing ##
 		if (defined $hap_block) {
 			my ($hap_block_count);
@@ -213,7 +212,7 @@ foreach (sort keys %chr_len) {
 				}
 			}
 			if ($blockNum > 0 && $hapA_reads_num > $read_nums_window && $hapB_reads_num > $read_nums_window) {
-				$hapIndex_hap = $hapIndex_hap / $blockNum;
+				$hapIndex_hap = sprintf ("%.4f", abs($hapIndex_hap / $blockNum));
 			}else{
 				$hapIndex_hap = 'NA';
 			}
@@ -244,14 +243,15 @@ foreach (sort keys %chr_len) {
 			if ($win_p1_Areads_num + $win_p2_Areads_num > $read_nums_window && $win_p1_Breads_num + $win_p2_Breads_num > $read_nums_window) {
 				$win_p1_Areads_ratio = $win_p1_Areads_num / ($win_p1_Areads_num + $win_p1_Breads_num);
 				$win_p2_Areads_ratio = $win_p2_Areads_num / ($win_p2_Areads_num + $win_p2_Breads_num);
-				$hapIndex = abs($win_p1_Areads_ratio - $win_p2_Areads_ratio);
-				$hapIndex_hap = $win_p1_Areads_ratio - $win_p2_Areads_ratio;
+				$hapIndex = sprintf "%.4f", abs($win_p1_Areads_ratio - $win_p2_Areads_ratio);
+				$hapIndex_hap = sprintf "%.4f", $win_p1_Areads_ratio - $win_p2_Areads_ratio;
 			}else{
 				$hapIndex = 'NA';
 				$hapIndex_hap = 'NA';
 			}
-			print OUT "$chr_num\t$win_pos\t$hapIndex_hap\t$window_indexED4\n";
+			print OUT "$chr_num\t$win_pos\t$hapIndex\t$window_indexED4\n";
 		}
+		close OUT;
 
 		unlink "$tmpdir/$tmp_chr.$s.p1.bam";
 		unlink "$tmpdir/$tmp_chr.$s.p2.bam";
@@ -267,19 +267,21 @@ foreach (sort keys %chr_len) {
 	}
 	$pm->wait_all_children();
 }
-`rm -rf $tmpdir`;
-close OUT;
 
-my @res;
-open IN,'<',"$outprefix.hapBSA.tmp.txt" or die "Cannot open hapBSA.tmp.txt:$!";
-while (<IN>) {
-	chomp;
-	push @res,$_;
+my (@res,@tmp_res);
+@tmp_res = glob "$tmpdir/*.tmp.hapBSA.txt";
+foreach (sort @tmp_res) {
+	open IN,'<',"$_" or die "Cannot open tmp.hapBSA.txt:$!";
+	while (<IN>) {
+		chomp;
+		push @res,$_;
+	}
+	close IN;
 }
-close IN;
+`rm -rf $tmpdir`;
 
 open OUT,'>',"$outprefix.hapBSA.sliding_window.txt" or die;
-foreach (sort {(split /\t/,$a)[0] <=> (split /\t/,$b)[0] or (split /\t/,$a)[1] <=> (split /\t/,$b)[1]} @res ) {
+foreach (sort {(split /\t/,$a)[0] cmp (split /\t/,$b)[0] or (split /\t/,$a)[1] <=> (split /\t/,$b)[1]} @res ) {
 	print OUT "$_\n";
 }
 close OUT;
@@ -290,7 +292,23 @@ my $time2 = time();
 my $time  = ( $time2 - $time1 ) / 60;
 print "$0 finished! Total time elapsed: $time min\n";
 
+## sub ##
+sub binarySearch {
+        my ($pos,$arr) = @_;
+        my ($low, $high) = (0, $#$arr);
 
-
+        while ($low <= $high) {
+                my $mid = int(($low + $high) / 2);
+                my $mid_pos = $arr->[$mid];
+                if ($mid_pos == $pos) {
+                        return $mid;
+                } elsif ($mid_pos < $pos) {
+                        $low = $mid + 1;
+                } else {
+                        $high = $mid - 1;
+                }
+        }
+        return $low;
+}
 
 
