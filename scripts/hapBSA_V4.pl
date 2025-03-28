@@ -86,7 +86,7 @@ close HAP;
 my $randnum = int(rand(100000))+1;
 my $tmpdir = "tmpdir$randnum";
 if (!-e $tmpdir) {
-	mkdir $tmpdir;
+	mkdir $tmpdir or die "ERROR:$!";
 }
 #$tmpdir = abs_path($tmpdir);
 exit;
