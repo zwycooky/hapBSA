@@ -133,10 +133,10 @@ foreach (sort keys %chr_len) {
 		
 		## hapBSA ##
 		my $prefix = "$tmp_chr.$s";
-        	!system "perl $sep_script $tmpdir/$tmp_chr.$s.p1.bam $tmpdir/$tmp_chr.$s.hap.txt $tmpdir/$prefix.p1 $snps_for_reads" or die "ERROR with phasing reads:$!";
-       		!system "perl $sep_script $tmpdir/$tmp_chr.$s.p2.bam $tmpdir/$tmp_chr.$s.hap.txt $tmpdir/$prefix.p2 $snps_for_reads" or die "ERROR with phasing reads:$!";
+        	!system "$sep_script $tmpdir/$tmp_chr.$s.p1.bam $tmpdir/$tmp_chr.$s.hap.txt $tmpdir/$prefix.p1 $snps_for_reads" or die "ERROR with phasing reads:$!";
+       		!system "$sep_script $tmpdir/$tmp_chr.$s.p2.bam $tmpdir/$tmp_chr.$s.hap.txt $tmpdir/$prefix.p2 $snps_for_reads" or die "ERROR with phasing reads:$!";
 		## snp index ##
-		chomp(my $window_indexED4 = `perl $snpMapper $refgenome $tmpdir/$tmp_chr.$s.p1.bam $tmpdir/$tmp_chr.$s.p2.bam $depth`);
+		chomp(my $window_indexED4 = `$snpMapper $refgenome $tmpdir/$tmp_chr.$s.p1.bam $tmpdir/$tmp_chr.$s.p2.bam $depth`);
 		
 		open OUT,'>',"$tmpdir/$prefix.tmp.hapBSA.txt" or die;
 		## hap block mode for reads based phasing ##
