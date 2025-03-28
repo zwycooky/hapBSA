@@ -32,7 +32,7 @@ options:
 	-d INT			minimum depth for calculating SNP-index [default: 10]
 	-D INT			minimum phased read numbers of a window [default: 50]
 	-N INT			minimum read numbers of hap block [default: 12]
-	-n INT			minimum numbers of phased snps for a read [default: 4]
+	-n INT			minimum numbers of phased snps for a read [default: 3]
 
 --perfromanat options
 	-a INT			cpus cores used for the analysis [default: 10]     
@@ -51,7 +51,7 @@ my $window_len          = (defined $opt_w)?$opt_w:1000000;
 my $step_len            = (defined $opt_s)?$opt_s:600000;
 my $depth               = (defined $opt_d)?$opt_d:10;
 my $block_read_nums	= (defined $opt_N)?$opt_N:12;
-my $snps_for_reads	= (defined $opt_n)?$opt_n:4;
+my $snps_for_reads	= (defined $opt_n)?$opt_n:3;
 my $read_nums_window	= (defined $opt_D)?$opt_D:50;
 my $sep_script          = $opt_e;
 my $snpMapper           = $opt_m;
