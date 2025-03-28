@@ -52,12 +52,16 @@ print "$bwa mem -t $threads -M -R \"\@RG\tID:bwa\tPL:Illumina\tLB:1\tSM:$sample_
 !system "export JAVA_TOOL_OPTIONS=-Xmx30g";
 ## picard ##
 # save the raw bam file #
-!system "$gatk SortSam I=$output.bam O=$output.sorted.bam SORT_ORDER=coordinate" or die "Error with SortSam:$!";
+!system "samtools sort -@ $threads -o $output.sorted.bam $output.bam" or die "Error with samtools sort:$!";
 unlink "$output.bam";
 
-!system "$gatk MarkDuplicates I=$output.sorted.bam O=$output.sorted.marked.duplicates.bam M=$output.marked_dup_metrics.txt REMOVE_DUPLICATES=true" or die "Error with MarkDuplicates:$!";
-unlink "$output.sorted.bam";
+# MarkDuplicates
+!system "$samtools sort -n -@ $threads -o $output.namesort.bam $output.sorted.bam" or die "Error with samtools sort -n:$!";
+!system "$samtools fixmate -@ $threads -m $output.namesort.bam $output.fixmate.bam" or die "Error with samtools fixmate:$!";
+!system "$samtools sort -@ $threads -o $output.positionsort.bam $output.fixmate.bam" or die "Error with samtools sort:$!";
+!system "$samtools markdup -@ $threads -s $output.positionsort.bam - | $samtools view -@ $threads -F 0x400 -b -o $output.sorted.marked.duplicates.bam" or die "Error with samtools markdup:$!";
+unlink "$output.sorted.bam", "$output.namesort.bam", "$output.fixmate.bam", "$output.positionsort.bam";
 
 ## index bam ##
-!system "$samtools index $output.sorted.marked.duplicates.bam" or die "ERROR with index:$!";
+!system "$samtools index -@ $threads $output.sorted.marked.duplicates.bam" or die "ERROR with index:$!";
 
