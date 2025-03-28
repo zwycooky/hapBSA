@@ -28,32 +28,33 @@ Perl module Math::Random
 ## Usage of hapBSA
 ```
 Usage:
-  scripts/hapBSA_V4.pl -OPTIONS VALUES
+  hapBSA_V4.pl -OPTIONS VALUES
 
 options:
 --input options
-	-1 FILE			bam file of pool1
-	-2 FILE			bam file of pool2
-	-p FILE			hap file
-	-r REFGENOME		reference genome for mapping
+        -1 FILE                 bam file of pool1
+        -2 FILE                 bam file of pool2
+        -p FILE                 hap file
+        -r REFGENOME            reference genome for mapping
 
 --sub progrem
-	-e SCRIPT		path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
-	-m SCRIPT		path of snpMapper_sub.pl
-	
---output options         
-	-o PREFIX		prefix of output file
+        -e SCRIPT               path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
+        -m SCRIPT               path of snpMapper_sub.pl
+
+--output options
+        -t DIR                  tmp_dir
+        -o PREFIX               prefix of output file
 
 --criteria options
-	-w INT			window length (bp) [default: 1000000]
-	-s INT			window step (bp)   [default: 600000]
-	-d INT			minimum depth for calculating SNP-index [default: 10]
-	-D INT			minimum phased read numbers of a window [default: 50]
-	-N INT			minimum read numbers of hap block [default: 12]
-	-n INT			minimum numbers of phased snps for a read [default: 4]
+        -w INT                  window length (bp) [default: 1000000]
+        -s INT                  window step (bp)   [default: 600000]
+        -d INT                  minimum depth for calculating SNP-index [default: 10]
+        -D INT                  minimum phased read numbers of a window [default: 50]
+        -N INT                  minimum read numbers of hap block [default: 12]
+        -n INT                  minimum numbers of phased snps for a read [default: 3]
 
 --perfromanat options
-	-a INT			cpus cores used for the analysis [default: 10]
+        -a INT                  cpus cores used for the analysis [default: 10]
 ```
 
 ## Quick start
@@ -63,9 +64,11 @@ perl scripts/hapBSA_V4.pl \
 	-2 pool2.bam \
 	-p haplotype.txt \
 	-r reference.fa \
+	-t tmp_dir \
 	-e scripts/separating_reads_by_haplotype.binarySearch.hapBSA.block.pl \
 	-m scripts/snpMapper_sub.pl \
 	-o output_prefix
+	-n 3
 ```
 Before starting, please ensure that the required tools are correctly installed and added to the $PATH to run this tool.
 
@@ -105,12 +108,15 @@ perl scripts/get_phased_SNP_from_whatshap.pl whatshap.vcf haplotype.txt
 ## Format of output file
 The output file of hapBSA will be named as ${output_prefix}.hapBSA.sliding_window.txt
 ```
-chr1    4100000 0.6575	0.1223  0.4772  0.3689
-chr1    4700000 0.6575	0.0537  0.4620  0.3531
-chr1    5300000 NA	0.0283  0.4985  0.3847
-chr1    5900000 NA	0.0743  0.4998  0.3828
-chr1    6500000 NA	0.0695  0.4817  0.3709
-chr1    7100000 NA	0.0433  0.4650  0.3566
+chr1    4100000 0.6644  0.1223  0.4819  0.3720
+chr1    4700000 0.6644  0.0537  0.4613  0.3553
+chr1    5300000 NA      0.0283  0.4999  0.3837
+chr1    5900000 NA      0.0743  0.5001  0.3856
+chr1    6500000 NA      0.0695  0.4792  0.3688
+chr1    7100000 NA      0.0433  0.4659  0.3592
+chr1    7700000 NA      0.0028  0.4621  0.3563
+chr1    8300000 0.4937  0.0152  0.4924  0.3795
+chr1    8900000 0.6733  0.0401  0.4762  0.3660
 ```
 The columns are:  
 1. chromosome ID
