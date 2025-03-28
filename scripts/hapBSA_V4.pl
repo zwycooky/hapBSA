@@ -89,7 +89,7 @@ if (!-e $tmpdir) {
 	mkdir $tmpdir;
 }
 #$tmpdir = abs_path($tmpdir);
-
+exit;
 ## generating sliding window ##
 foreach (sort keys %chr_len) {
 	my $chr = $_;
