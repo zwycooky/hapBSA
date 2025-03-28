@@ -20,7 +20,8 @@ hapBSA, a haplotype-based bulked segregant analysis tool for QTL mapping in half
 SAMtools v1.16.1 or higher  
 BWA v0.7.17-r1188 or higher  
 Hisat2 v2.2.1 or higher  
-Whatshap v1.7 or higher  
+Whatshap v1.7 or higher
+Perl module File::Path
 Perl module Parallel::ForkManager v2.03  
 Perl module List::Util
 Perl module Math::Random
@@ -230,6 +231,7 @@ docker run --user $(id -u):$(id -g) \
 	-2 /pool_bam/B.sorted.bam \
 	-p /snp/parent.whatshap.ngs.phased.txt \
 	-r /genome/test.genome.fa \
+	-t /output \
 	-e separating_reads_by_haplotype.binarySearch.hapBSA.block.pl \
 	-m snpMapper_sub.pl \
 	-o /output/test.hapBSA	
