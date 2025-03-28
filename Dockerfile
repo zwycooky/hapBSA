@@ -44,7 +44,9 @@ RUN cpanm List::Util
 RUN cpanm Math::Random
 RUN cpanm Getopt::Std
 RUN cpanm Parallel::ForkManager
-#RUN apt-get install -y r-base r-base-dev
+RUN cpanm File::Path
+
+#ENV BREAK_CACHE=dummy
 
 RUN git clone https://githubfast.com/zwycooky/hapBSA.git
 RUN chmod +x /hapBSA/scripts/*
