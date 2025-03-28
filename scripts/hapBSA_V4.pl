@@ -89,7 +89,6 @@ if (!-e $tmpdir) {
 	make_path($tmpdir, { chmod => 0755 }) or die "ERROR with make_path:$!";
 }
 #$tmpdir = abs_path($tmpdir);
-exit;
 ## generating sliding window ##
 foreach (sort keys %chr_len) {
 	my $chr = $_;
