@@ -3,10 +3,11 @@
 use strict;
 use Getopt::Std;
 use Cwd 'abs_path';
+use File::Path;
 use Parallel::ForkManager;
 
-our ($opt_1,$opt_2,$opt_p,$opt_r,$opt_a,$opt_o,$opt_w,$opt_s,$opt_d,$opt_e,$opt_m,$opt_N,$opt_n,$opt_D);
-getopt ("1:2:p:r:a:o:w:s:d:e:m:N:n:D:");
+our ($opt_1,$opt_2,$opt_p,$opt_r,$opt_a,$opt_t,$opt_o,$opt_w,$opt_s,$opt_d,$opt_e,$opt_m,$opt_N,$opt_n,$opt_D);
+getopt ("1:2:p:r:a:t:o:w:s:d:e:m:N:n:D:");
 
 my $Usage = "Usage:\n  $0 -OPTIONS VALUES
 
@@ -21,7 +22,8 @@ options:
 	-e SCRIPT		path of separating_reads_by_haplotype.binarySearch.hapBSA.block.pl
 	-m SCRIPT		path of snpMapper_sub.pl
 	
---output options         
+--output options
+	-t DIR			tmp_dir
 	-o PREFIX		prefix of output file
 
 --criteria options
@@ -36,12 +38,13 @@ options:
 	-a INT			cpus cores used for the analysis [default: 10]     
 \n";
 
-die $Usage unless ($opt_1 && $opt_2 && $opt_p && $opt_r && $opt_o && $opt_e && $opt_m);
+die $Usage unless ($opt_1 && $opt_2 && $opt_p && $opt_r && $opt_t && $opt_o && $opt_e && $opt_m);
 
 my $bam1                = $opt_1;
 my $bam2                = $opt_2;
 my $hap_file            = $opt_p;
 my $refgenome           = $opt_r;
+my $tmp_dir				= $opt_t;
 my $outprefix           = $opt_o;
 my $cpu                 = (defined $opt_a)?$opt_a:10;
 my $window_len          = (defined $opt_w)?$opt_w:1000000;
@@ -53,11 +56,8 @@ my $read_nums_window	= (defined $opt_D)?$opt_D:50;
 my $sep_script          = $opt_e;
 my $snpMapper           = $opt_m;
 
-#die "ERROR:$!" unless (-e $sep_script);
-#die "ERROR:$!" unless (-e $snpMapper);
-
-$sep_script = abs_path($sep_script);
-$snpMapper  = abs_path($snpMapper);
+#$sep_script = abs_path($sep_script);
+#$snpMapper  = abs_path($snpMapper);
 
 #die "ERROR:$!" unless (-e $sep_script);
 #die "ERROR:$!" unless (-e $snpMapper);
@@ -84,9 +84,9 @@ close HAP;
 
 ## generate tmpdir ##
 my $randnum = int(rand(100000))+1;
-my $tmpdir = "tmpdir$randnum";
+my $tmpdir = "$tmp_dir/tmpdir$randnum";
 if (!-e $tmpdir) {
-	mkdir $tmpdir or die "ERROR:$!";
+	make_path($tmpdir, { chmod => 0755 }) or die "ERROR with make_path:$!";
 }
 #$tmpdir = abs_path($tmpdir);
 exit;
