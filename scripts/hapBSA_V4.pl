@@ -59,6 +59,8 @@ my $snpMapper           = $opt_m;
 $sep_script = abs_path($sep_script);
 $snpMapper  = abs_path($snpMapper);
 
+print "$sep_script\n$snpMapper\n";
+
 my $time1 = time();
 
 ## read hap file ##
