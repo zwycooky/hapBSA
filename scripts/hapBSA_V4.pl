@@ -59,6 +59,9 @@ my $snpMapper           = $opt_m;
 $sep_script = abs_path($sep_script);
 $snpMapper  = abs_path($snpMapper);
 
+die "ERROR:$!" unless (-e $sep_script);
+die "ERROR:$!" unless (-e $snpMapper);
+
 print "$sep_script\n$snpMapper\n";
 
 my $time1 = time();
@@ -85,7 +88,7 @@ my $tmpdir = "tmpdir$randnum";
 if (!-e $tmpdir) {
 	mkdir $tmpdir;
 }
-$tmpdir = abs_path($tmpdir);
+#$tmpdir = abs_path($tmpdir);
 
 ## generating sliding window ##
 foreach (sort keys %chr_len) {
