@@ -68,7 +68,7 @@ perl scripts/hapBSA_V4.pl \
 	-t tmp_dir \
 	-e scripts/separating_reads_by_haplotype.binarySearch.hapBSA.block.pl \
 	-m scripts/snpMapper_sub.pl \
-	-o output_prefix
+	-o output_prefix \
 	-n 3
 ```
 Before starting, please ensure that the required tools are correctly installed and added to the $PATH to run this tool.
