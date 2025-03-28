@@ -3,7 +3,7 @@
 use strict;
 use Getopt::Std;
 use Cwd 'abs_path';
-use File::Path;
+use File::Path 'make_path';
 use Parallel::ForkManager;
 
 our ($opt_1,$opt_2,$opt_p,$opt_r,$opt_a,$opt_t,$opt_o,$opt_w,$opt_s,$opt_d,$opt_e,$opt_m,$opt_N,$opt_n,$opt_D);
