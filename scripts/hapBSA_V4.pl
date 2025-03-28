@@ -59,8 +59,8 @@ my $snpMapper           = $opt_m;
 $sep_script = abs_path($sep_script);
 $snpMapper  = abs_path($snpMapper);
 
-die "ERROR:$!" unless (-e $sep_script);
-die "ERROR:$!" unless (-e $snpMapper);
+#die "ERROR:$!" unless (-e $sep_script);
+#die "ERROR:$!" unless (-e $snpMapper);
 
 print "$sep_script\n$snpMapper\n";
 
