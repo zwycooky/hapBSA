@@ -94,7 +94,7 @@ sub phasing_reads {
 			
 			my $search_s = &binarySearch($start,$hap_pos);
 			my $search_e = &binarySearch($end,$hap_pos);
-			my @tmp_hap = @{hap}[($search_s-1)..($search_e+1)];
+			my @tmp_hap = @{$hap}[($search_s-1)..($search_e+1)];
 			
 			## keep the biggest hap block for phaing ##
 			my ($hap_block,%block_count);
