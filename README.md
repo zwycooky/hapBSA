@@ -54,7 +54,7 @@ options:
         -N INT                  minimum read numbers of hap block [default: 12]
         -n INT                  minimum numbers of phased snps for a read [default: 3]
 
---perfromanat options
+--performance options
         -a INT                  cpus cores used for the analysis [default: 10]
 ```
 
