@@ -251,8 +251,8 @@ Rscript scripts\hapBSA_plot_cmdArg.R example_file\11_87864065_ngs_block.hapBSA.s
 
 <a href="https://www.star-history.com/?type=date&repos=zengxiaofei%2FHapHiC">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=zengxiaofei/HapHiC&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=zengxiaofei/HapHiC&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=zengxiaofei/HapHiC&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=zwycooky/hapBSA&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=zwycooky/hapBSA&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=zwycooky/hapBSA&type=date&legend=top-left" />
  </picture>
 </a>
