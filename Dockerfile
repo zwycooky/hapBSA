@@ -28,6 +28,7 @@ RUN apt-get install -y --no-install-recommends python3
 RUN apt-get install -y --no-install-recommends python3-pip
 RUN apt-get install -y --no-install-recommends bwa
 RUN apt-get install -y --no-install-recommends samtools
+RUN apt-get install -y --no-install-recommends libhts-dev
 RUN apt-get install -y --no-install-recommends hisat2
 RUN apt-get install -y --no-install-recommends cpanminus
 
@@ -59,4 +60,3 @@ ENV PATH=$PATH:/hapBSA/scripts/
 
 # Start a new shell session when the container runs
 CMD ["/bin/bash"]
-
