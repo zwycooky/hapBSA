@@ -5,6 +5,7 @@ Haplotype-based Bulked segregant analysis
 
 - [Introduction](#introduction)
 - [Requirements](#requirements)
+- [C implementation](#c-implementation)
 - [Usage of hapBSA](#usage-of-hapbsa)
 - [Quick start](#quick-start)
 - [Format of input file](#format-of-input-file)
@@ -25,6 +26,33 @@ Perl module File::Path
 Perl module Parallel::ForkManager v2.03  
 Perl module List::Util
 Perl module Math::Random
+
+C implementation build requirements:
+- gcc
+- make
+- pkg-config
+- htslib development headers (`libhts-dev` on Debian/Ubuntu)
+
+## C implementation
+A from-scratch C port of the hapBSA V4 pipeline is included as `hapbsa.c`. It merges `hapBSA_V4.pl`, `separating_reads_by_haplotype.binarySearch.hapBSA.block.pl` and `snpMapper_sub.pl` into a single binary, uses htslib for BAM/FASTA access, and accepts the same command-line options. The Perl scripts are kept for reference and legacy use.
+
+### Build
+```
+make
+```
+
+### Quick start
+```
+./hapbsa \
+	-1 pool1.bam \
+	-2 pool2.bam \
+	-p haplotype.txt \
+	-r reference.fa \
+	-t tmp_dir \
+	-o output_prefix \
+	-n 3
+```
+The `-e` and `-m` options are accepted for compatibility with the Perl interface and are ignored by the C version.
 
 ## Usage of hapBSA
 ```
